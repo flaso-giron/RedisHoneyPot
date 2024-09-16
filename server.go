@@ -59,6 +59,7 @@ func (s *RedisServer) OnConnect(c *connection.Connection) {
 	s.log.WithFields(logrus.Fields{
 		"action": "NewConnect",
 		"addr":   c.PeerAddr(),
+		"type":   "reconnaissance",
 	}).Println()
 }
 
@@ -71,26 +72,22 @@ func (s *RedisServer) OnMessage(c *connection.Connection, ctx interface{}, data 
 	if err != nil {
 		return
 	}
-
 	com := strings.ToLower(cmd.Name())
-
-	s.log.WithField("action", strings.Join(cmd.Args, " ")).WithField("addr", c.PeerAddr()).Println()
 
 	switch com {
 	case "ping":
 		out = []byte("+PONG\r\n")
-		s.log.WithFields(logrus.Fields{
-			"type": "discovery",
-		}).Println()
+		s.log.WithField("action", strings.Join(cmd.Args, " ")).WithField("addr", c.PeerAddr()).Println()
+		s.log.WithField("action", strings.Join(cmd.Args, " ")).WithField("addr", c.PeerAddr()).WithFields(logrus.Fields{
+			"type": "discovery"}).Println()
 	case "info":
 		info := ""
 		for _, key := range s.Config.Section("info").KeyStrings() {
 			info += fmt.Sprintf("%s:%s\r\n", key, s.Config.Section("info").Key(key))
 		}
 		out = []byte("$" + strconv.Itoa(len(info)) + "\r\n" + info + "\r\n")
-		s.log.WithFields(logrus.Fields{
-			"type": "enumeration",
-		}).Println()
+		s.log.WithField("action", strings.Join(cmd.Args, " ")).WithField("addr", c.PeerAddr()).WithFields(logrus.Fields{
+			"type": "enumeration"}).Println()
 	case "set":
 		if len(cmd.Args) < 3 {
 			out = []byte("-ERR wrong number of arguments for '" + cmd.Args[0] + "' command\r\n")
@@ -98,9 +95,8 @@ func (s *RedisServer) OnMessage(c *connection.Connection, ctx interface{}, data 
 			s.hashmap.Put(cmd.Args[1], cmd.Args[2])
 			out = []byte("+OK\r\n")
 		}
-		s.log.WithFields(logrus.Fields{
-			"type": "exploitation",
-		}).Println()
+		s.log.WithField("action", strings.Join(cmd.Args, " ")).WithField("addr", c.PeerAddr()).WithFields(logrus.Fields{
+			"type": "exploitation"}).Println()
 	case "get":
 		if len(cmd.Args) != 2 {
 			out = []byte("-ERR wrong number of arguments for '" + cmd.Args[0] + "' command\r\n")
@@ -112,9 +108,8 @@ func (s *RedisServer) OnMessage(c *connection.Connection, ctx interface{}, data 
 				out = []byte("+(nil)\r\n")
 			}
 		}
-		s.log.WithFields(logrus.Fields{
-			"type": "exploitation",
-		}).Println()
+		s.log.WithField("action", strings.Join(cmd.Args, " ")).WithField("addr", c.PeerAddr()).WithFields(logrus.Fields{
+			"type": "exploitation"}).Println()
 	case "del":
 		if len(cmd.Args) < 2 {
 			out = []byte("-ERR wrong number of arguments for '" + cmd.Args[0] + "' command\r\n")
@@ -122,9 +117,8 @@ func (s *RedisServer) OnMessage(c *connection.Connection, ctx interface{}, data 
 			s.hashmap.Remove(cmd.Args[1])
 			out = []byte("+(integer) 1\r\n")
 		}
-		s.log.WithFields(logrus.Fields{
-			"type": "exploitation",
-		}).Println()
+		s.log.WithField("action", strings.Join(cmd.Args, " ")).WithField("addr", c.PeerAddr()).WithFields(logrus.Fields{
+			"type": "exploitation"}).Println()
 	case "exists":
 		if len(cmd.Args) < 2 {
 			out = []byte("-ERR wrong number of arguments for '" + cmd.Args[0] + "' command\r\n")
@@ -136,9 +130,8 @@ func (s *RedisServer) OnMessage(c *connection.Connection, ctx interface{}, data 
 				out = []byte("+(integer) 0\r\n")
 			}
 		}
-		s.log.WithFields(logrus.Fields{
-			"type": "reconnaissance",
-		}).Println()
+		s.log.WithField("action", strings.Join(cmd.Args, " ")).WithField("addr", c.PeerAddr()).WithFields(logrus.Fields{
+			"type": "reconnaissance"}).Println()
 	case "keys":
 		if len(cmd.Args) != 2 {
 			out = []byte("-ERR wrong number of arguments for '" + cmd.Args[0] + "' command\r\n")
@@ -159,35 +152,29 @@ func (s *RedisServer) OnMessage(c *connection.Connection, ctx interface{}, data 
 				}
 			}
 		}
-		s.log.WithFields(logrus.Fields{
-			"type": "reconnaissance",
-		}).Println()
+		s.log.WithField("action", strings.Join(cmd.Args, " ")).WithField("addr", c.PeerAddr()).WithFields(logrus.Fields{
+			"type": "reconnaissance"}).Println()
 	case "flushall":
 		out = []byte("+OK\r\n")
-		s.log.WithFields(logrus.Fields{
-			"type": "exploitation",
-		}).Println()
+		s.log.WithField("action", strings.Join(cmd.Args, " ")).WithField("addr", c.PeerAddr()).WithFields(logrus.Fields{
+			"type": "evasion"}).Println()
 	case "flushdb":
 		out = []byte("+OK\r\n")
-		s.log.WithFields(logrus.Fields{
-			"type": "exploitation",
-		}).Println()
+		s.log.WithField("action", strings.Join(cmd.Args, " ")).WithField("addr", c.PeerAddr()).WithFields(logrus.Fields{
+			"type": "evasion"}).Println()
 	case "save":
 		out = []byte("+OK\r\n")
-		s.log.WithFields(logrus.Fields{
-			"type": "exploitation",
-		}).Println()
+		s.log.WithField("action", strings.Join(cmd.Args, " ")).WithField("addr", c.PeerAddr()).WithFields(logrus.Fields{
+			"type": "exploitation"}).Println()
 	case "select":
 		out = []byte("+OK\r\n")
-		s.log.WithFields(logrus.Fields{
-			"type": "reconnaissance",
-		}).Println()
+		s.log.WithField("action", strings.Join(cmd.Args, " ")).WithField("addr", c.PeerAddr()).WithFields(logrus.Fields{
+			"type": "reconnaissance"}).Println()
 	case "dbsize":
 		l := strconv.Itoa(s.hashmap.Size())
 		out = []byte("+(integer) " + l + "\r\n")
-		s.log.WithFields(logrus.Fields{
-			"type": "reconnaissance",
-		}).Println()
+		s.log.WithField("action", strings.Join(cmd.Args, " ")).WithField("addr", c.PeerAddr()).WithFields(logrus.Fields{
+			"type": "reconnaissance"}).Println()
 	case "config":
 		if cmd.Args[1] == "get" && len(cmd.Args) > 2 {
 			if cmd.Args[2] != "*" {
@@ -213,18 +200,16 @@ func (s *RedisServer) OnMessage(c *connection.Connection, ctx interface{}, data 
 		} else {
 			out = []byte("-ERR Unknown subcommand or wrong number of arguments for 'get'. Try CONFIG HELP.\r\n")
 		}
-		s.log.WithFields(logrus.Fields{
-			"type": "exploitation",
-		}).Println()
+		s.log.WithField("action", strings.Join(cmd.Args, " ")).WithField("addr", c.PeerAddr()).WithFields(logrus.Fields{
+			"type": "exploitation"}).Println()
 	case "slaveof":
 		if len(cmd.Args) < 3 {
 			out = []byte("-ERR wrong number of arguments for 'slaveof' command\r\n")
 		} else {
 			out = []byte("+OK\r\n")
 		}
-		s.log.WithFields(logrus.Fields{
-			"type": "exploitation",
-		}).Println()
+		s.log.WithField("action", strings.Join(cmd.Args, " ")).WithField("addr", c.PeerAddr()).WithFields(logrus.Fields{
+			"type": "exploitation"}).Println()
 	default:
 		out = []byte("-ERR unknown command `" + cmd.Name() + "`, with args beginning with:\r\n")
 	}
