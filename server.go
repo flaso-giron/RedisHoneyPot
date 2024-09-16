@@ -72,7 +72,6 @@ func (s *RedisServer) OnMessage(c *connection.Connection, ctx interface{}, data 
 	if err != nil {
 		return
 	}
-
 	com := strings.ToLower(cmd.Name())
 
 	switch com {
