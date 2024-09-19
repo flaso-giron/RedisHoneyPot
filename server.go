@@ -77,7 +77,6 @@ func (s *RedisServer) OnMessage(c *connection.Connection, ctx interface{}, data 
 	switch com {
 	case "ping":
 		out = []byte("+PONG\r\n")
-		s.log.WithField("action", strings.Join(cmd.Args, " ")).WithField("addr", c.PeerAddr()).Println()
 		s.log.WithField("action", strings.Join(cmd.Args, " ")).WithField("addr", c.PeerAddr()).WithFields(logrus.Fields{
 			"type": "discovery"}).Println()
 	case "info":
