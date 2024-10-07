@@ -216,8 +216,5 @@ func (s *RedisServer) OnMessage(c *connection.Connection, ctx interface{}, data 
 }
 
 func (s *RedisServer) OnClose(c *connection.Connection) {
-	s.log.WithFields(logrus.Fields{
-		"action": "Closed",
-		"addr":   c.PeerAddr(),
-	}).Println()
+	s.log.WithFields(logrus.Fields{"action": "Closed", "type": "reconnaissance", "addr": c.PeerAddr()}).Println()
 }
